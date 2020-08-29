@@ -1,6 +1,6 @@
 // This is the application entry point
 import { Connection } from "./Connection";
-
+import { DNSChecker } from "./DNSChecker";
 (global as any).WebSocket = require("ws");
 
 export class App {
@@ -23,7 +23,8 @@ export class App {
       }
     });
 
-    const con = Connection.create();
+    Connection.create();
+    DNSChecker.create();
   }
 }
 
