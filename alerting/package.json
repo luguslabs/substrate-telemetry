@@ -30,7 +30,7 @@
     "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs",
     "npm-publish": "npm publish"
   },
-  "version": "3.1.0",
+  "version": "3.2.0",
   "name": "archipel-telemetry-bot",
   "license": "GPL-3.0",
   "dependencies": {
