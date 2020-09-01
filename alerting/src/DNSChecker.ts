@@ -32,10 +32,9 @@ export class DNSChecker {
       for (const instance of instanceListToCheck) {
         // console.log(instance);
 
-        const [dns1, dns2, ip] = instance.split("#");
+        const [dns1, dns2] = instance.split("#");
         console.log(dns1);
         console.log(dns2);
-        console.log(ip);
 
         dns.resolve4(dns1, function (err: any, addresses1: any) {
           if (err) {
@@ -47,7 +46,7 @@ export class DNSChecker {
           dns.resolve4(dns2, function (err: any, addresses2: any) {
             if (!err) {
               let alarm = true;
-              if (addresses1[0] === addresses2[0] && addresses1[0] === ip) {
+              if (addresses1[0] === addresses2[0]) {
                 // console.log("dns2 == dns1 == ip  ");
                 alarm = false;
               }
@@ -61,8 +60,7 @@ export class DNSChecker {
                   dns2 +
                   "(" +
                   addresses2[0] +
-                  "),IP:" +
-                  ip;
+                  ")";
                 console.log(mismatch);
                 bot.sendMessage(TELEGRAM_CHAT_ID, BOT_PREFIX_MSG + mismatch);
               }
