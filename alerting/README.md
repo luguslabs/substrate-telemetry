@@ -2,9 +2,9 @@
 
 Archipel Telemetry Bot supervise a private archipel substrate telemetry content with the Polkadot nodes and send Alerting message in as a Telegram Bot.
 
-This pogram includes:
+This program includes:
 
-- Puppeteer: to scrap substrate telemetry.
+- connexion to telemetry backend
 - Node-telegram-bot-api : to publish alert message in a Telegram chat.
 
 ## Check And Alerts Bot Rules
