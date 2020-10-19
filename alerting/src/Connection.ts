@@ -25,15 +25,10 @@ const PASSIVE_NODES_NUMBER =
     ? parseInt(process.env.PASSIVE_NODES_NUMBER)
     : 6;
 
-const PUBLIC_NODES_NUMBER =
-  "PUBLIC_NODES_NUMBER" in process.env
-    ? parseInt(process.env.PUBLIC_NODES_NUMBER)
-    : 4;
-
 const ARCHIPEL_NODES_NUMBER =
   "ARCHIPEL_NODES_NUMBER" in process.env
     ? parseInt(process.env.ARCHIPEL_NODES_NUMBER)
-    : 13;
+    : 9;
 
 const BOT_NAME = "Archipel Telemetry Bot";
 const BOT_ID =
@@ -46,9 +41,6 @@ const ALERT_ACTIVE_NODES_NUMBER =
 
 const ALERT_PASSIVE_NODES_NUMBER =
   "Passive nodes alert ! Expected " + PASSIVE_NODES_NUMBER;
-
-const ALERT_PUBLIC_NODES_NUMBER =
-  "Public nodes alert ! Expected " + PUBLIC_NODES_NUMBER;
 
 const ALERT_ARCHIPEL_NODES_NUMBER =
   "Archipel nodes alert ! Expected " + ARCHIPEL_NODES_NUMBER;
@@ -115,8 +107,6 @@ export class Connection {
 
   private activeNodes: Set<Types.NodeName>;
 
-  private publicNodes: Set<Types.NodeName>;
-
   private nodeIdToName: Map<Types.NodeId, Types.NodeName>;
 
   private nameToNodeID: Map<Types.NodeName, Types.NodeId>;
@@ -127,7 +117,6 @@ export class Connection {
     this.archipelNodes = new Set();
     this.passiveNodes = new Set();
     this.activeNodes = new Set();
-    this.publicNodes = new Set();
 
     this.socket = socket;
     this.bindSocket();
@@ -137,8 +126,7 @@ export class Connection {
         this.checkAlerts(
           this.archipelNodes,
           this.passiveNodes,
-          this.activeNodes,
-          this.publicNodes
+          this.activeNodes
         ),
       ALERTS_CHECK_EVERY
     );
@@ -195,9 +183,6 @@ export class Connection {
 
           this.nameToNodeID.set(nodeDetails[0], id);
 
-          if (nodeDetails[0].includes("public")) {
-            this.publicNodes.add(nodeDetails[0]);
-          }
           if (nodeDetails[0].includes("active")) {
             this.activeNodes.add(nodeDetails[0]);
           }
@@ -328,8 +313,7 @@ export class Connection {
   private checkAlerts(
     archipelNodes: Set<Types.NodeName>,
     passiveNodes: Set<Types.NodeName>,
-    activeNodes: Set<Types.NodeName>,
-    publicNodes: Set<Types.NodeName>
+    activeNodes: Set<Types.NodeName>
   ) {
     console.log("archipelNodes size=" + archipelNodes.size);
     if (this.archipelNodes.size != ARCHIPEL_NODES_NUMBER) {
@@ -352,13 +336,6 @@ export class Connection {
         BOT_PREFIX_MSG + ALERT_ACTIVE_NODES_NUMBER
       );
     }
-    console.log("publicNodes size=" + publicNodes.size);
-    if (this.publicNodes.size != PUBLIC_NODES_NUMBER) {
-      bot.sendMessage(
-        TELEGRAM_CHAT_ID,
-        BOT_PREFIX_MSG + ALERT_PUBLIC_NODES_NUMBER
-      );
-    }
   }
 
   private clearMapsByNodeName(name: Types.NodeName) {
@@ -372,10 +349,6 @@ export class Connection {
 
     if (this.activeNodes.has(name)) {
       this.activeNodes.delete(name);
-    }
-
-    if (this.publicNodes.has(name)) {
-      this.publicNodes.delete(name);
     }
   }
 
