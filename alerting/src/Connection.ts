@@ -20,15 +20,27 @@ const ACTIVE_NODES_NUMBER =
     ? parseInt(process.env.ACTIVE_NODES_NUMBER)
     : 3;
 
+const ACTIVE_NODES_PATTERN =
+    "ACTIVE_NODES_PATTERN" in process.env
+      ? process.env.ACTIVE_NODES_PATTERN
+      : 'archipel-validator-';
+
 const PASSIVE_NODES_NUMBER =
   "PASSIVE_NODES_NUMBER" in process.env
     ? parseInt(process.env.PASSIVE_NODES_NUMBER)
-    : 6;
+    : 4;
 
-const ARCHIPEL_NODES_NUMBER =
-  "ARCHIPEL_NODES_NUMBER" in process.env
-    ? parseInt(process.env.ARCHIPEL_NODES_NUMBER)
-    : 9;
+const PASSIVE_NODES_PATTERN =
+"PASSIVE_NODES_PATTERN" in process.env
+  ? process.env.PASSIVE_NODES_PATTERN
+  : 'polkadot-node-';
+
+
+const TOTAL_NODES_NUMBER =
+  "TOTAL_NODES_NUMBER" in process.env
+    ? parseInt(process.env.TOTAL_NODES_NUMBER)
+    : 8;
+
 
 const BOT_NAME = "Archipel Telemetry Bot";
 const BOT_ID =
@@ -37,13 +49,13 @@ const BOT_TARGET = "Supervised URL [" + TELEMETRY_URL + "]\n";
 const BOT_PREFIX_MSG = BOT_ID + BOT_TARGET;
 
 const ALERT_ACTIVE_NODES_NUMBER =
-  "Active nodes alert ! Expected " + ACTIVE_NODES_NUMBER;
+  "Active nodes alert for Network "+NETWORK+" ! Expected number [" + ACTIVE_NODES_NUMBER + "]";
 
 const ALERT_PASSIVE_NODES_NUMBER =
-  "Passive nodes alert ! Expected " + PASSIVE_NODES_NUMBER;
+  "Passive nodes alert for Network "+NETWORK+" ! Expected number [" + PASSIVE_NODES_NUMBER+ "]";
 
-const ALERT_ARCHIPEL_NODES_NUMBER =
-  "Archipel nodes alert ! Expected " + ARCHIPEL_NODES_NUMBER;
+const ALERT_TOTAL_NODES_NUMBER =
+  "Total nodes alert for Network "+NETWORK+" ! Expected number [" + TOTAL_NODES_NUMBER+ "]";
 
 const TIMEOUT_BASE = (1000 * 5) as Types.Milliseconds; // 5 seconds
 const TIMEOUT_MAX = (1000 * 60 * 5) as Types.Milliseconds; // 5 minutes
@@ -101,7 +113,7 @@ export class Connection {
 
   private socket: WebSocket;
 
-  private archipelNodes: Set<Types.NodeName>;
+  private totalNodes: Set<Types.NodeName>;
 
   private passiveNodes: Set<Types.NodeName>;
 
@@ -114,7 +126,7 @@ export class Connection {
   constructor(socket: WebSocket) {
     this.nodeIdToName = new Map();
     this.nameToNodeID = new Map();
-    this.archipelNodes = new Set();
+    this.totalNodes = new Set();
     this.passiveNodes = new Set();
     this.activeNodes = new Set();
 
@@ -124,7 +136,7 @@ export class Connection {
     setInterval(
       () =>
         this.checkAlerts(
-          this.archipelNodes,
+          this.totalNodes,
           this.passiveNodes,
           this.activeNodes
         ),
@@ -183,17 +195,15 @@ export class Connection {
 
           this.nameToNodeID.set(nodeDetails[0], id);
 
-          if (nodeDetails[0].includes("active")) {
+          if (ACTIVE_NODES_NUMBER > 0 && nodeDetails[0].includes(ACTIVE_NODES_PATTERN)) {
             this.activeNodes.add(nodeDetails[0]);
           }
 
-          if (nodeDetails[0].includes("passive")) {
+          if (PASSIVE_NODES_NUMBER > 0 && nodeDetails[0].includes(PASSIVE_NODES_PATTERN)) {
             this.passiveNodes.add(nodeDetails[0]);
           }
 
-          if (nodeDetails[0].includes("archipel")) {
-            this.archipelNodes.add(nodeDetails[0]);
-          }
+          this.totalNodes.add(nodeDetails[0]);
 
           break;
         }
@@ -311,36 +321,36 @@ export class Connection {
     }
   };
   private checkAlerts(
-    archipelNodes: Set<Types.NodeName>,
+    totalNodes: Set<Types.NodeName>,
     passiveNodes: Set<Types.NodeName>,
     activeNodes: Set<Types.NodeName>
   ) {
-    console.log("archipelNodes size=" + archipelNodes.size);
-    if (this.archipelNodes.size != ARCHIPEL_NODES_NUMBER) {
+    console.log("total Nodes size=" + this.totalNodes.size);
+    if (this.totalNodes.size != TOTAL_NODES_NUMBER) {
       bot.sendMessage(
         TELEGRAM_CHAT_ID,
-        BOT_PREFIX_MSG + ALERT_ARCHIPEL_NODES_NUMBER
+        BOT_PREFIX_MSG + ALERT_TOTAL_NODES_NUMBER + ". Number found [" + this.totalNodes.size + "]"
       );
     }
-    console.log("passiveNodes size=" + passiveNodes.size);
-    if (this.passiveNodes.size != PASSIVE_NODES_NUMBER) {
+    console.log("passiveNodes size=" + this.passiveNodes.size);
+    if (PASSIVE_NODES_NUMBER > 0 && this.passiveNodes.size != PASSIVE_NODES_NUMBER) {
       bot.sendMessage(
         TELEGRAM_CHAT_ID,
-        BOT_PREFIX_MSG + ALERT_PASSIVE_NODES_NUMBER
+        BOT_PREFIX_MSG + ALERT_PASSIVE_NODES_NUMBER + ". Number found [" + this.passiveNodes.size + "]"
       );
     }
-    console.log("activeNodes size=" + activeNodes.size);
-    if (this.activeNodes.size != ACTIVE_NODES_NUMBER) {
+    console.log("activeNodes size=" + this.activeNodes.size);
+    if (ACTIVE_NODES_NUMBER > 0 && this.activeNodes.size != ACTIVE_NODES_NUMBER) {
       bot.sendMessage(
         TELEGRAM_CHAT_ID,
-        BOT_PREFIX_MSG + ALERT_ACTIVE_NODES_NUMBER
+        BOT_PREFIX_MSG + ALERT_ACTIVE_NODES_NUMBER + ". Number found [" + this.activeNodes.size + "]"
       );
     }
   }
 
   private clearMapsByNodeName(name: Types.NodeName) {
-    if (this.archipelNodes.has(name)) {
-      this.archipelNodes.delete(name);
+    if (this.totalNodes.has(name)) {
+      this.totalNodes.delete(name);
     }
 
     if (this.passiveNodes.has(name)) {
