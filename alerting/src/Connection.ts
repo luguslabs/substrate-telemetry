@@ -325,7 +325,7 @@ export class Connection {
     passiveNodes: Set<Types.NodeName>,
     activeNodes: Set<Types.NodeName>
   ) {
-    console.log("total Nodes size=" + this.totalNodes.size);
+  /*  console.log("total Nodes size=" + this.totalNodes.size);
     if (this.totalNodes.size != TOTAL_NODES_NUMBER) {
       bot.sendMessage(
         TELEGRAM_CHAT_ID,
@@ -339,6 +339,7 @@ export class Connection {
         BOT_PREFIX_MSG + ALERT_PASSIVE_NODES_NUMBER + ". Number found [" + this.passiveNodes.size + "]"
       );
     }
+    */
     console.log("activeNodes size=" + this.activeNodes.size);
     if (ACTIVE_NODES_NUMBER > 0 && this.activeNodes.size != ACTIVE_NODES_NUMBER) {
       bot.sendMessage(
